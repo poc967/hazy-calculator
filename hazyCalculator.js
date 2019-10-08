@@ -3,17 +3,18 @@ function isSkippedValue(value) {
 }
 
 function isNumericValue(value) {
-  return !isNaN(value)
+  return !isNaN(value) && value !== ''
 }
 
 function isNothingValue(value) {
-  return value === null
+  return value === undefined || value === null
 }
 
 function isAcceptableValue(value) {
   const operators = ['+', '-', '*', '/']
-  return typeof value === Number || operators.includes(value)
+  return isNumericValue(value) || isSkippedValue(value) || operators.includes(value)
 }
+
 
 function performCalculationStep(firstOperand, operator, secondOperand) {
   switch (operator) {
@@ -37,23 +38,24 @@ function calculate(calculationSteps) {
   calculationSteps.forEach(nextCalculationStep => {
     if (!isAcceptableValue(nextCalculationStep)) {
       throw new Error('Invalid input!')
-    }
+    } else {
 
-    if (isNothingValue(total) && isNumericValue(nextCalculationStep)) {
-      total = Number(nextCalculationStep)
 
-    } else if (isNothingValue(operator) && !isSkippedValue(nextCalculationStep)) {
-      operator = nextCalculationStep
+      if (isNothingValue(total) && isNumericValue(nextCalculationStep)) {
+        total = Number(nextCalculationStep)
 
-    } else if (isNumericValue(nextCalculationStep)) {
-      total = performCalculationStep(total, operator, Number(nextCalculationStep))
-      operator = null
+      } else if (isNothingValue(operator) && !isSkippedValue(nextCalculationStep)) {
+        operator = nextCalculationStep
 
-    } else if (!isSkippedValue(nextCalculationStep)) {
-      throw new Error('Invalid input!')
+      } else if (isNumericValue(nextCalculationStep)) {
+        total = performCalculationStep(total, operator, Number(nextCalculationStep))
+        operator = null
+
+      } else if (!isSkippedValue(nextCalculationStep)) {
+        throw new Error('Invalid input!')
+      }
     }
   })
-
   return total
 }
 
